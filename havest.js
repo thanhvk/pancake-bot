@@ -17,24 +17,18 @@ const getPendingCake = async () => {
     return pendingCake
 }
 
-const getUserInfo = async () => {
-    const { amount, rewardDebt } = await poolContract.methods.userInfo(POOL_IDX, USER_ADDRESS).call()
-    const userInfo = { amount, rewardDebt }
-
-    for (const key in userInfo) {
-        userInfo[key] = BigNumber(userInfo[key]).div(10**18).toFormat(3)
-    }
-    
-    return userInfo
+const getUserCake = async () => {
+    const { amount } = await poolContract.methods.userInfo(POOL_IDX, USER_ADDRESS).call()
+    return BigNumber(amount).div(10**18).toFormat(3)    
 }
 
 exports.handler = async () => {
     const pendingCake = await getPendingCake()
-    const userInfo = await getUserInfo()
+    const userCake = await getUserCake()
 
     return {
         pendingCake,
-        userInfo,
+        userCake,
     }
 }
 

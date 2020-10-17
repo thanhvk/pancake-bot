@@ -6,6 +6,7 @@ const port = 8082
 
 app.get('/', async (req, res) => {
   const result = await havest.handler()
+
   res.send(result)
 })
 
