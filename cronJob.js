@@ -1,11 +1,16 @@
 const bot = require('./bot')
+const harvest = require('./harvest')
+const config = require('./config')
 
-setInterval(async () => {
-  const result = await havest.handler()
+exports.harvestNoti = () => {
+  bot.sendMessage('Start track harvest')
 
-  if (result.pendingCake >= 50) {
-    bot.sendMessage(`Time to havest pending cake is: ${result.pendingCacke}`)
-  }
+  return setInterval(async () => {
+          const result = await harvest.handler()
 
-  res.send(result)
-}, 1800000)
+          if (result.pendingCake >= config.AMOUNT_NOTI) {
+            bot.sendMessage(`Time to havest pending cake is: ${result.pendingCacke}`)
+          }
+
+        }, 1800000)
+}
