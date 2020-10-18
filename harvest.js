@@ -15,7 +15,7 @@ const poolContract = new Web3EthContract(POOL_CONTRACT_ABI.abi, POOL_CONTRACT_AD
 const getPendingCake = async () => {
     try {
         const result = await poolContract.methods.pendingCake(POOL_IDX, USER_ADDRESS).call()
-        return BigNumber(result).div(10**18).toFormat(3)
+        return BigNumber(result).div(10**18).toNumber()
     } catch (error) {
         return ''
     }
@@ -24,7 +24,7 @@ const getPendingCake = async () => {
 const getUserCake = async () => {
     try {
         const { amount } = await poolContract.methods.userInfo(POOL_IDX, USER_ADDRESS).call()
-        return BigNumber(amount).div(10**18).toFormat(3)    
+        return BigNumber(amount).div(10**18).toNumber()  
     } catch (error) {
         return ''
     }
@@ -33,23 +33,29 @@ const getUserCake = async () => {
 const getCurrentCakePrice = async () => {
     try {
         const { data: {'pancakeswap-token': {usd}}} = await axios.get('https://api.coingecko.com/api/v3/simple/price?ids=pancakeswap-token&vs_currencies=usd')
-        return usd
+        return BigNumber(usd).toNumber()
     } catch (error) {
         return ''
     }
 }
 
 exports.handler = async () => {
-    let pendingCake, userCake, price
+    let pendingCake, pendingCakeUsd, userCake, userCakeUsd, price, totalUsd
 
+    price = await getCurrentCakePrice()
     pendingCake = await getPendingCake()
     userCake = await getUserCake()
-    price = await getCurrentCakePrice()
+    pendingCakeUsd = BigNumber(pendingCake).multipliedBy(price).toNumber()
+    userCakeUsd = BigNumber(userCake).multipliedBy(price).toNumber()
+    totalUsd = pendingCakeUsd + userCakeUsd
     
     return {
-        pendingCake,
-        userCake,
-        price,
+        pendingCake: Number(pendingCake.toFixed(3)),
+        pendingCakeUsd: Number(pendingCakeUsd.toFixed(3)),
+        userCake: Number(userCake.toFixed(3)),
+        userCakeUsd: Number(userCakeUsd.toFixed(3)),
+        totalUsd: Number(totalUsd.toFixed(3)),
+        price: Number(price.toFixed(3)),
     }
 }
 
